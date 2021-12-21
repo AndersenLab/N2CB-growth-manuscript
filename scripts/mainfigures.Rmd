@@ -1,0 +1,133 @@
+---
+title: "Main Figures"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: paper
+    toc_depth: 4
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r load}
+library(here)
+library(tidyverse)
+library(SplinesUtils)
+library(cowplot)
+library(ggridges)
+library(kableExtra)
+library(linkagemapping)
+library(patchwork)
+
+# load data
+rawdata <- readr::read_csv(here::here("data", "rawdata.csv")) %>%
+  dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
+pruneddata <- readr::read_csv(here::here("data", "pruneddata.csv")) %>%
+  dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
+annotatedmap <- readRDS(here::here("data","annotatedmap.RDS"))
+phenocross <- readRDS(here::here("data","phenocross.RDS.gzip"))
+```
+
+#### **Fig 1. Quantitative measurements of animal size**
+
+```{r Fig1, fig.height=6, fig.width=7}
+length <- pruneddata %>%
+  dplyr::group_by(strain, timepoint, replicate, row, col) %>%
+  dplyr::summarize(mean.Length = mean(TOF), .groups = "drop") %>%
+  ggplot(., aes(x = timepoint, y = mean.Length, fill = strain, color = strain)) +
+  geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
+  geom_jitter(size=0.1, width=0.2, alpha=0.1) +
+  scale_x_continuous(breaks = seq(0, 60, 5)) +
+  theme_cowplot(font_size = 10, rel_small = 8/10) +
+  scale_fill_manual(values = c("#ffa500","#0000ff")) +
+  scale_color_manual(values = c("#ffa500","#0000ff")) +
+  labs(x="Time (hours)", y = "Mean Animal Length") +
+  scale_x_discrete(breaks = c("01", "05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
+
+width <- pruneddata %>%
+  dplyr::group_by(strain, timepoint, replicate, row, col) %>%
+  dplyr::summarize(mean.Width = mean(norm.EXT), .groups = "drop") %>%
+  ggplot(.) +
+  aes(x = timepoint, y = mean.Width, fill = strain, color = strain) +
+  geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
+  geom_jitter(size=0.1, width=0.2, alpha=0.1) +
+  scale_x_continuous(breaks = seq(0, 60, 5)) +
+  theme_cowplot(font_size = 10, rel_small = 8/10) +
+  scale_fill_manual(values = c("#ffa500","#0000ff")) +
+  scale_color_manual(values = c("#ffa500","#0000ff")) +
+  labs(x="Time (hours)", y = "Mean Animal Width") +
+  scale_x_discrete(breaks = c("01", "05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
+
+fig1 <- cowplot::plot_grid(length, width, labels = "AUTO", ncol = 1, nrow = 2, align = "hv", label_size = 10)
+fig1
+```
+```{r eval=FALSE, include=FALSE}
+ggsave(here::here("figures", "Fig1.png"), plot = fig1, device = "png", width = 6, height = 5.5, units = "in", dpi = 300)
+```
+
+
+#### **Fig 2**
+```{r Fig2, fig.width=12, fig.length = 5}
+traitmap <- annotatedmap %>%
+  dplyr::filter(trait == "none.mean.res.meanTOF")
+hist.TOF <- na.omit(phenocross$pheno) %>%
+  ggplot(.) + aes(none.mean.res.meanTOF) + 
+  geom_histogram(bins = 40) + labs(x = "Mean body length", y = "Count", title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+lod.TOF <- linkagemapping::maxlodplot(traitmap, tsize = 12) + labs(title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border() + 
+  theme(axis.text.x = element_blank())
+pxg.TOF <- linkagemapping::pxgplot(phenocross, traitmap) + 
+  theme(panel.grid = element_blank()) + labs(title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+
+traitmap <- annotatedmap %>%
+  dplyr::filter(trait == "none.mean.res.mean.normEXT")
+hist.Width <- na.omit(phenocross$pheno) %>%
+  ggplot(.) + aes(none.mean.res.mean.normEXT) + 
+  geom_histogram(bins = 40) + labs(x = "Mean body width", y = "Count", title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+lod.Width <- linkagemapping::maxlodplot(traitmap, tsize = 12) + labs(title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border() + 
+  theme(axis.text.x = element_blank())
+pxg.Width <- linkagemapping::pxgplot(phenocross, traitmap) + 
+  theme(panel.grid = element_blank()) + labs(title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+
+
+p1 <- cowplot::plot_grid(hist.TOF,lod.TOF,pxg.TOF, nrow = 1, rel_widths = c(0.8,2,1.2), labels = c("A","B","C"))
+p2 <- cowplot::plot_grid(hist.Width,lod.Width,pxg.Width, nrow = 1, rel_widths = c(0.8,2,1.2), labels = c("D","E","F"))
+
+fig2 <- cowplot::plot_grid(p1,p2, nrow = 2)
+fig2
+```
+```{r eval=FALSE, include=FALSE}
+ggsave(here::here("figures", "Fig2.png"), plot = fig2, device = "png", width = 12, height = 6, units = "in", dpi = 300)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
