@@ -24,11 +24,12 @@ library(ggridges)
 library(sjPlot)
 
 # S1 file
-rawdata <- readr::read_csv(here::here("data", "rawdata.csv")) %>%
+rawdata <- readr::read_csv(here::here("data", "S1File.csv")) %>%
   dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
-# S2 file
-pruneddata <- readr::read_csv(here::here("data", "pruneddata.csv")) %>%
+pruneddata <- readr::read_csv(here::here("data", "S2File.csv")) %>%
   dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
+
+nilpruneddata <- readr::read_csv(here::here("data", "S8File.csv"))
 
 # S4 file
 load(here::here("data","nilgeno.Rda"))
@@ -358,16 +359,18 @@ regressed <- sumnils %>%
 
 Tukey's HSD: Mean animal length
 ```{r}
-regressed %>%
+stats.length <- regressed %>%
   aov(residual.meanTOF ~ strain, data = .) %>%
   rstatix::tukey_hsd()
+stats.length
 ```
 
 Tukey's HSD: Mean animal width
 ```{r}
-regressed %>%
+stats.width <- regressed %>%
   aov(residual.meanwidth ~ strain, data = .) %>%
   rstatix::tukey_hsd()
+stats.width
 ```
 
 

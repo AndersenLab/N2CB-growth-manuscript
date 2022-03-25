@@ -29,26 +29,21 @@ library(ggsignif)
 library(cegwas2)
 
 # load data
-# S1 file
-rawdata <- readr::read_csv(here::here("data", "growth_rawdata.csv")) %>%
+
+rawdata <- readr::read_csv(here::here("data", "S1File.csv")) %>%
   dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
-# S2 file
-pruneddata <- readr::read_csv(here::here("data", "growth_pruneddata.csv")) %>%
+pruneddata <- readr::read_csv(here::here("data", "S2File.csv")) %>%
   dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
-# S3 file
-annotatedmap <- readRDS(here::here("data","annotatedmap.RDS"))
-phenocross <- readRDS(here::here("data","phenocross.RDS"))
-# S4 file
-load(here::here("data","nilgeno.Rda"))
+annotatedmap <- readr::read_csv(here::here("data", "S4File.csv"))
 
-# S5 file
-nilpruneddata <- readr::read_csv(here::here("data", "nils_pruneddata.csv"))
+phenocross <- readRDS(here::here("data","extras","phenocross.RDS"))
+nilgeno <- readr::read_csv(here::here("data", "S6File.csv"))
+nilpruneddata <- readr::read_csv(here::here("data", "S8File.csv"))
 
-# data("eQTLpeaks")
-# data("probe_info")
+data("eQTLpeaks")
+data("probe_info")
 
-# S6 file
-load(here::here("data","gene_annotations.Rda"))
+load(here::here("data","extras","gene_annotations.Rda"))
 ```
 
 #### **Fig 1. Quantitative measurements of animal size**
