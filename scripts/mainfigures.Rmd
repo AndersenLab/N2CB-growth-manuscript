@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r load}
+```{r load, message=FALSE, warning=FALSE}
 library(here)
 library(tidyverse)
 library(SplinesUtils)
@@ -25,14 +25,30 @@ library(ggridges)
 library(kableExtra)
 library(linkagemapping)
 library(patchwork)
+library(ggsignif)
+library(cegwas2)
 
 # load data
-rawdata <- readr::read_csv(here::here("data", "rawdata.csv")) %>%
+# S1 file
+rawdata <- readr::read_csv(here::here("data", "growth_rawdata.csv")) %>%
   dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
-pruneddata <- readr::read_csv(here::here("data", "pruneddata.csv")) %>%
+# S2 file
+pruneddata <- readr::read_csv(here::here("data", "growth_pruneddata.csv")) %>%
   dplyr::mutate(strain = factor(strain, levels = c("N2","CB")))
+# S3 file
 annotatedmap <- readRDS(here::here("data","annotatedmap.RDS"))
-phenocross <- readRDS(here::here("data","phenocross.RDS.gzip"))
+phenocross <- readRDS(here::here("data","phenocross.RDS"))
+# S4 file
+load(here::here("data","nilgeno.Rda"))
+
+# S5 file
+nilpruneddata <- readr::read_csv(here::here("data", "nils_pruneddata.csv"))
+
+# data("eQTLpeaks")
+# data("probe_info")
+
+# S6 file
+load(here::here("data","gene_annotations.Rda"))
 ```
 
 #### **Fig 1. Quantitative measurements of animal size**
@@ -44,12 +60,11 @@ length <- pruneddata %>%
   ggplot(., aes(x = timepoint, y = mean.Length, fill = strain, color = strain)) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
   geom_jitter(size=0.1, width=0.2, alpha=0.1) +
-  scale_x_continuous(breaks = seq(0, 60, 5)) +
   theme_cowplot(font_size = 10, rel_small = 8/10) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
   labs(x="Time (hours)", y = "Mean Animal Length") +
-  scale_x_discrete(breaks = c("01", "05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
+  scale_x_discrete(breaks = c("05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
 
 width <- pruneddata %>%
   dplyr::group_by(strain, timepoint, replicate, row, col) %>%
@@ -58,12 +73,11 @@ width <- pruneddata %>%
   aes(x = timepoint, y = mean.Width, fill = strain, color = strain) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
   geom_jitter(size=0.1, width=0.2, alpha=0.1) +
-  scale_x_continuous(breaks = seq(0, 60, 5)) +
   theme_cowplot(font_size = 10, rel_small = 8/10) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
   labs(x="Time (hours)", y = "Mean Animal Width") +
-  scale_x_discrete(breaks = c("01", "05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
+  scale_x_discrete(breaks = c("05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
 
 fig1 <- cowplot::plot_grid(length, width, labels = "AUTO", ncol = 1, nrow = 2, align = "hv", label_size = 10)
 fig1
@@ -79,31 +93,33 @@ traitmap <- annotatedmap %>%
   dplyr::filter(trait == "none.mean.res.meanTOF")
 hist.TOF <- na.omit(phenocross$pheno) %>%
   ggplot(.) + aes(none.mean.res.meanTOF) + 
-  geom_histogram(bins = 40) + labs(x = "Mean body length", y = "Count", title = "") +
-  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+  geom_histogram(bins = 40) + labs(x = "Mean animal length", y = "Count", title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black")
 lod.TOF <- linkagemapping::maxlodplot(traitmap, tsize = 12) + labs(title = "") +
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border() + 
   theme(axis.text.x = element_blank())
 pxg.TOF <- linkagemapping::pxgplot(phenocross, traitmap) + 
   theme(panel.grid = element_blank()) + labs(title = "") +
-  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black") +
+  guides(fill = "none")
 
 traitmap <- annotatedmap %>%
   dplyr::filter(trait == "none.mean.res.mean.normEXT")
 hist.Width <- na.omit(phenocross$pheno) %>%
   ggplot(.) + aes(none.mean.res.mean.normEXT) + 
-  geom_histogram(bins = 40) + labs(x = "Mean body width", y = "Count", title = "") +
-  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+  geom_histogram(bins = 40) + labs(x = "Mean animal width", y = "Count", title = "") +
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black")
 lod.Width <- linkagemapping::maxlodplot(traitmap, tsize = 12) + labs(title = "") +
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border() + 
   theme(axis.text.x = element_blank())
 pxg.Width <- linkagemapping::pxgplot(phenocross, traitmap) + 
   theme(panel.grid = element_blank()) + labs(title = "") +
-  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border()
+  theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black") +
+  guides(fill = "none")
 
 
-p1 <- cowplot::plot_grid(hist.TOF,lod.TOF,pxg.TOF, nrow = 1, rel_widths = c(0.8,2,1.2), labels = c("A","B","C"))
-p2 <- cowplot::plot_grid(hist.Width,lod.Width,pxg.Width, nrow = 1, rel_widths = c(0.8,2,1.2), labels = c("D","E","F"))
+p1 <- cowplot::plot_grid(hist.TOF,lod.TOF,pxg.TOF, nrow = 1, rel_widths = c(0.8,2.2,1), labels = c("A","B","C"))
+p2 <- cowplot::plot_grid(hist.Width,lod.Width,pxg.Width, nrow = 1, rel_widths = c(0.8,2.2,1), labels = c("D","E","F"))
 
 fig2 <- cowplot::plot_grid(p1,p2, nrow = 2)
 fig2
@@ -112,12 +128,235 @@ fig2
 ggsave(here::here("figures", "Fig2.png"), plot = fig2, device = "png", width = 12, height = 6, units = "in", dpi = 300)
 ```
 
+#### **Table 1**
+```{r}
+annotatedmap %>%
+  na.omit() %>%
+  dplyr::arrange(chr, pos) %>%
+  dplyr::mutate(trait = c("Length","Width","Width")) %>%
+  dplyr::select(trait, marker, lod, var_exp, eff_size, ci_l_pos, ci_r_pos)
+
+```
+
+#### **Fig 3**
+```{r Fig3, fig.length=, fig.width=12, message=FALSE, warning=FALSE}
+regress_stats <- function(phenodf, genodf, stages) {
+  # regress out bleach effect
+  regressed <- phenodf %>%
+    dplyr::filter(stage %in% c(stages)) %>%
+    dplyr::mutate(residual.meanTOF = residuals(aov(mean.TOF ~ bleach, data = .)),
+                  residual.meanwidth = residuals(aov(mean.normEXT ~ bleach, data = .)))
+  
+    # ChrX
+  chrX <- meanwidth.regressed %>%
+    dplyr::filter(comparison %in% c("N2-ECA929","CB4856-ECA828")) %>%
+    tidyr::separate(comparison, into = c("Start", "End"), remove = FALSE) %>%
+    dplyr::mutate(sig = dplyr::case_when(padj < 0.0001 ~ "****",
+                                         padj < 0.001 ~ "***",
+                                         padj < 0.01 ~ "**",
+                                         padj < 0.05 ~ "*",
+                                         TRUE ~ "ns"))
+  
+  chrX.phenoplot <- regressed %>%
+    dplyr::filter(strain %in% c("N2","ECA929","CB4856","ECA828")) %>%
+    ggplot(.) +
+    aes(x = strain, y = residual.meanwidth, fill = strain) +
+    geom_boxplot(outlier.color = NA, width = 0.6, alpha = 0.8, size = 0.2) +
+    geom_jitter(width = 0.1, size = 0.2, alpha = 0.6) + 
+    theme_cowplot() +
+    scale_fill_manual(values = c("N2" = "#ffa500", "CB4856" = "#0000ff", "ECA929" = "gray","ECA828" = "gray")) +
+    #facet_wrap(~stage, scales = "free") + 
+    panel_border(color = "black", size = 0.8) +
+    ggsignif::geom_signif(data = chrX, manual = TRUE, inherit.aes = F,
+                          aes(xmax = End, xmin = Start, y_position= c(0.35,0.35), annotations = sig)) +
+    coord_flip() + facet_wrap(~"Phenotype") +
+    scale_color_manual(values = c("N2" = "#ffa500", "CB4856" = "#0000ff")) + 
+    guides(color = "none", size = "none", fill = "none") + ylab("Mean Animal Width") + xlab("") 
+  
+  # plot chrX genotype
+  chrX.genoplot <- genodf %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(chrom == "X",
+                  sample %in% c("N2","ECA929","CB4856","ECA828"),
+                  !end == 18000000) %>%
+    dplyr::mutate(chrom = paste0("chr", "X"),
+                  sample = factor(sample, levels = rev(c("N2","ECA929","CB4856","ECA828")))) %>%
+    dplyr::distinct() %>%
+    ggplot(.)+
+    geom_segment(aes(x = start/1e6, y = sample, xend = end/1e6, yend = sample, color = gt_name), size = 8) +
+    facet_wrap(~chrom)+
+    geom_vline(xintercept = 12.750794) +
+    geom_vline(xintercept = c(12.565734,13.173080), linetype="dotted") +
+    scale_color_manual(values=c("N2"="orange","CB4856"="blue"))+
+    theme_cowplot() + panel_border(color = "black") +
+    theme(axis.ticks.y = element_blank(),
+          legend.position = "none",
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank())+
+    labs(x = "Genomic position (Mb)", y = "") 
+  
+  # plot genome background
+  chrX.backplot <- genodf %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(sample %in% c("N2","ECA929","CB4856","ECA828"),
+                  chrom == ifelse("X" == "III", "II", "III")) %>%
+    dplyr::mutate(bp = end - start) %>%
+    dplyr::group_by(sample, gt_name) %>%
+    dplyr::summarize(max = sum(bp)) %>%
+    dplyr::arrange(desc(max)) %>%
+    dplyr::filter(max == first(max)) %>%
+    dplyr::mutate(start = 0,
+                  end = 15e6,
+                  chr = "Genome")  %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(sample = factor(sample, levels = rev(c("N2","ECA929","CB4856","ECA828")))) %>%
+    ggplot(.)+
+    geom_segment(aes(x = start/1e6, y = sample, xend = end/1e6, yend = sample, color = gt_name), size = 8)+
+    facet_wrap(~chr) +
+    scale_color_manual(values=c("N2"="orange","CB4856"="blue"))+
+    theme_cowplot() + panel_border(color = "black") +
+    theme(axis.text = element_blank(),
+          axis.title = element_blank(),
+          legend.position = "none",
+          axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          strip.text.y = element_blank())+
+    labs(x = "Genomic position (Mb)", y = "")
+  
+  allX <- cowplot::plot_grid(chrX.genoplot, chrX.backplot, chrX.phenoplot,
+                             nrow = 1, ncol = 3, rel_widths = c(3, 1, 4.5), 
+                             align = "h", axis = "b", labels = c("A", "", "B"))
+  
+  return(allX)
+}
+
+#summarize the prunned nil data
+sumnils <- nilpruneddata %>%
+  dplyr::mutate(strain = factor(strain, 
+                                levels = rev(c("N2","ECA1064","ECA597","ECA2006","ECA232","ECA929",
+                                               "CB4856","ECA575","ECA599","ECA1060","ECA1058","ECA828")))) %>%
+  dplyr::group_by(stage,bleach,plate,strain,row,col) %>%
+  dplyr::summarize(mean.TOF = mean(TOF),
+                   mean.normEXT = mean(norm.EXT),
+                   n = n(), .groups = "drop") 
+
+fig3 <- regress_stats(sumnils, nilgeno, "L4s")
+fig3
+```
+```{r eval=FALSE, include=FALSE}
+ggsave(here::here("figures", "Fig3.png"), plot = fig3, device = "png", width = 12, height = 6, units = "in", dpi = 300)
+```
 
 
 
+```{r}
+query_genes <- function(region, strain = "CB4856") {
+    
+    # filter eqtl to > 5% VE
+    eqtlmap2 <- eQTLpeaks %>%
+        dplyr::filter(var_exp >= 0.05)
+    
+    # how many genes are in the interval?
+    all_genes <- cegwas2::query_vcf(region, impact = "ALL", samples = strain)
+    print(glue::glue("There are {length(unique(all_genes$gene_id))} genes in the interval {region}"))
+    
+    # how many eQTL map to this region?
+    chrom <- stringr::str_split_fixed(region, ":", 2)[,1]
+    left_pos <- as.numeric(stringr::str_split_fixed(stringr::str_split_fixed(region, ":", 2)[,2], "-", 2)[,1])
+    right_pos <- as.numeric(stringr::str_split_fixed(stringr::str_split_fixed(region, ":", 2)[,2], "-", 2)[,2])
+    
+    all_eQTL <<- eqtlmap2 %>%
+        dplyr::filter(chr == chrom,
+                      ci_l_pos < right_pos,
+                      ci_r_pos > left_pos)
+    
+    # all eQTL probes
+    all_eQTL_probes <- probe_info %>%
+        dplyr::filter(probe %in% all_eQTL$trait)
+    
+    ##############################
+    # if wbgene is NA - try to fix
+    ##############################
+    
+    # filter na
+    na1 <- all_eQTL_probes %>%
+        dplyr::group_by(probe) %>%
+        dplyr::mutate(num_na = sum(is.na(wbgene))/length(wbgene)) %>%
+        dplyr::filter(num_na == 1)
+    
+    unique_probes <- paste(unique(na1$probe), collapse = ",")
+    
+    ##################################
+    
+    # which of the eQTL are overlapping with genes in interval?
+    eQTL_outside_CI <- all_eQTL_probes %>%
+        dplyr::filter(!wbgene %in% all_genes$gene_id)
+    print(glue::glue("There are {nrow(all_eQTL)-length(unique(eQTL_outside_CI$wbgene))-nrow(na1)}/{nrow(all_eQTL)} genes that are in the region and have an eQTL, {length(unique(eQTL_outside_CI$wbgene))}/{nrow(all_eQTL)} genes outside the region with an eQTL, and {nrow(na1)}/{nrow(all_eQTL)} unknown"))
+    
+    # Total genes of interest:
+    print(glue::glue("There are at least {length(unique(all_genes$gene_id)) + length(unique(eQTL_outside_CI$wbgene))} total genes of interest."))
+    
+    # how many of the genes in interval have variation?
+    vars <- all_genes %>%
+        dplyr::mutate(GT = ifelse(a1 == REF, "ref", "alt")) %>%
+        dplyr::filter(GT == "alt")
+    
+    # genes with protein coding vars
+    proteincode <- vars %>%
+        dplyr::filter(impact %in% c("MODERATE", "HIGH"))
+    print(glue::glue("There are {length(unique(vars$gene_id))}/{length(unique(all_genes$gene_id))} genes in interval with genetic variation, {length(unique(proteincode$gene_id))}/{length(unique(vars$gene_id))} have protein-coding variation"))
+    
+    
+    # return final dataframe with all info (might be off by 1?)
+    total_genes <- gene_annotations %>%
+      # dplyr::select(-c(go_term,go_name,go_description)) %>%
+      # dplyr::distinct() %>%
+            dplyr::filter(wbgene %in% c(all_genes$gene_id, eQTL_outside_CI$wbgene)) %>%
+            dplyr::mutate(inside_CI = ifelse(wbgene %in% all_genes$gene_id, T, F),
+                          eqtl = ifelse(wbgene %in% all_eQTL_probes$wbgene, T, F),
+                          vars = ifelse(wbgene %in% vars$gene_id, T, F),
+                          pc_vars = ifelse(wbgene %in% proteincode$gene_id, T, F),
+                          go_annotation = NA)
+        
+        distinct <- total_genes %>%
+            dplyr::distinct(wbgene, .keep_all = T)
+        
+        message("Summary:")
+        # no var
+        no_var <- nrow(distinct %>% dplyr::filter(inside_CI == T, vars == F, pc_vars == F))
+        print(glue::glue("{no_var} genes in this interval with no variation"))
+        
+        # non-pc var only
+        nonpc_var <- nrow(distinct %>% dplyr::filter(inside_CI == T, vars == T, pc_vars == F, eqtl == F))
+        print(glue::glue("{nonpc_var} genes in this interval with non-protein-coding variation only"))
+        
+        # pc alone
+        pc <- nrow(distinct %>% dplyr::filter(inside_CI == T, vars == T, pc_vars == T, eqtl == F))
+        print(glue::glue("{pc} genes in this interval with protein-coding variation only"))
+        
+        # eQTL alone in
+        e_in <- nrow(distinct %>% dplyr::filter(inside_CI == T, vars == F, pc_vars == F, eqtl == T))
+        print(glue::glue("{e_in} genes in this interval with eQTL only"))
+        
+        # eQTL alone out
+        e_out <- nrow(distinct %>% dplyr::filter(inside_CI == F, vars == F, pc_vars == F, eqtl == T))
+        print(glue::glue("{e_out} genes outside this interval with eQTL"))
+        
+        # var + eQTL
+        var_eqtl <- nrow(distinct %>% dplyr::filter(inside_CI == T, vars == T, pc_vars == F, eqtl == T))
+        print(glue::glue("{var_eqtl} genes in this interval with non-protein-coding variation and eQTL"))
+        
+        # pc + eQTL
+        pc_eqtl <- nrow(distinct %>% dplyr::filter(inside_CI == T, vars == T, pc_vars == T, eqtl == T))
+        print(glue::glue("{pc_eqtl} genes in this interval with protein-coding variation and eQTL"))
+        
+    
+    return(total_genes)
+}    
 
-
-
+genes <- query_genes("X:12565734-13173080")
+DT::datatable(genes)
+```
 
 
 
