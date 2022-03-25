@@ -8,7 +8,7 @@ Growth rate and body size are integral and complex traits that contribute to the
 - **S3 File. RIAIL phenotype data.** Residual phenotypic values for all 310 RIAILs, and parent strains (N2 and CB4856) for each trait (TOF = length and normEXT = width). (CSV)
 - **S4 File. Linkage mapping results.** Linkage mapping results with annotated QTL and confidence intervals. (CSV)
 - **S5 File. CSS/NIL sequence data.** VCF from the whole-genome sequencing for all the CSSs/NILs in this study. (DOCX)
-- **S6 File. CSS/NIL genotype data.** Simplified genotypes for the CSSs/NILs in this study. (CSV)
+- **S6 File. CSS/NIL genotype data.** Genotypes for the CSSs/NILs in this study. (CSV)
 - **S7 File. CSS and NIL raw phenotype data.** Raw phenotype data for the CSSs and NILs in this study. (CSV)
 - **S8 File. CSS and NIL pruned phenotype data.** Pruned phenotype data for the CSSs and NILs in this study. (CSV)
 - **S9 File. Statistical significance for mean animal length from CSS/NIL assay.** Pairwise statistical significance for all strains. (CSV)
