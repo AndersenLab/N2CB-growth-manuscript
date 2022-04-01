@@ -130,6 +130,46 @@ figS3
 ggplot2::ggsave(here::here("figures", "supplement", "S3Fig.png"), plot = figS3, device = "png", width = 7, height = 5, units = "in", dpi = 300)
 ```
 
+
+#### **S4 Fig. Comparisons of means**
+```{r Fig1, fig.height=6, fig.width=10}
+sumdata <- pruneddata %>%
+  dplyr::group_by(strain, timepoint, replicate, row, col) %>%
+  dplyr::summarize(mean.Length = mean(TOF),
+                   mean.Width = mean(norm.EXT), .groups = "drop")
+
+ypos <- sumdata %>% 
+  dplyr::group_by(timepoint) %>%
+  dplyr::summarize(l = as.numeric(stats::quantile(mean.Length, probs = 0.75, na.rm = TRUE)[1]) + 40,
+                   w = as.numeric(stats::quantile(mean.Width, probs = 0.50, na.rm = TRUE)[1]) + 0.35)
+
+l <- sumdata %>%
+  ggplot(., aes(x = timepoint, y = mean.Length, fill = strain)) +
+  geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
+  geom_jitter(aes(color = strain), size=0.1, width=0.2, alpha=0.4) +
+  theme_cowplot(font_size = 14, rel_small = 9/14) +
+  scale_fill_manual(values = c("#ffa500","#0000ff")) +
+  scale_color_manual(values = c("#ffa500","#0000ff")) +
+  labs(x="Time (hours)", y = "Mean Animal Length") +
+  ggpubr::stat_compare_means(method = "wilcox.test", label = "..p.signif..", label.y = ypos$l)
+
+w <- sumdata %>%
+  ggplot(., aes(x = timepoint, y = mean.Width, fill = strain)) +
+  geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
+  geom_jitter(aes(color = strain), size=0.1, width=0.2, alpha=0.4) +
+  theme_cowplot(font_size = 14, rel_small = 9/14) +
+  scale_fill_manual(values = c("#ffa500","#0000ff")) +
+  scale_color_manual(values = c("#ffa500","#0000ff")) +
+  labs(x="Time (hours)", y = "Mean Animal Width") +
+  ggpubr::stat_compare_means(method = "wilcox.test", label = "..p.signif..", label.y = ypos$w)
+
+figS4 <- cowplot::plot_grid(l, w, labels = "AUTO", ncol = 1, nrow = 2, align = "hv", label_size = 10)
+figS4
+```
+```{r eval=FALSE, include=FALSE}
+ggsave(here::here("figures", "supplement", "S4-1Fig.png"), plot = figS4, device = "png", width = 12, height = 9, units = "in", dpi = 300, bg="white")
+```
+
 #### **S6 Fig. CSSs and NILs test length-associated chromosome IV QTL**
 ```{r S6Fig, fig.length=, fig.width=12, message=FALSE, warning=FALSE}
 regress_stats <- function(phenodf, genodf, stages) {

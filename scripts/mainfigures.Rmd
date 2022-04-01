@@ -52,7 +52,7 @@ load(here::here("data","extras","gene_annotations.Rda"))
 length <- pruneddata %>%
   dplyr::group_by(strain, timepoint, replicate, row, col) %>%
   dplyr::summarize(mean.Length = mean(TOF), .groups = "drop") %>%
-  ggplot(., aes(x = timepoint, y = mean.Length, fill = strain, color = strain)) +
+  ggplot(., aes(x = timepoint, y = mean.Length, fill = strain)) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
   geom_jitter(size=0.1, width=0.2, alpha=0.1) +
   theme_cowplot(font_size = 10, rel_small = 8/10) +
@@ -65,7 +65,7 @@ width <- pruneddata %>%
   dplyr::group_by(strain, timepoint, replicate, row, col) %>%
   dplyr::summarize(mean.Width = mean(norm.EXT), .groups = "drop") %>%
   ggplot(.) +
-  aes(x = timepoint, y = mean.Width, fill = strain, color = strain) +
+  aes(x = timepoint, y = mean.Width, fill = strain) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
   geom_jitter(size=0.1, width=0.2, alpha=0.1) +
   theme_cowplot(font_size = 10, rel_small = 8/10) +
