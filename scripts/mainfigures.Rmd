@@ -54,7 +54,7 @@ length <- pruneddata %>%
   dplyr::summarize(mean.Length = mean(TOF), .groups = "drop") %>%
   ggplot(., aes(x = timepoint, y = mean.Length, fill = strain)) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
-  geom_jitter(size=0.1, width=0.2, alpha=0.1) +
+  geom_jitter(aes(color = "strain"), size=0.1, width=0.2, alpha=0.1) +
   theme_cowplot(font_size = 10, rel_small = 8/10) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
@@ -67,7 +67,7 @@ width <- pruneddata %>%
   ggplot(.) +
   aes(x = timepoint, y = mean.Width, fill = strain) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
-  geom_jitter(size=0.1, width=0.2, alpha=0.1) +
+  geom_jitter(aes(color = "strain"), size=0.1, width=0.2, alpha=0.1) +
   theme_cowplot(font_size = 10, rel_small = 8/10) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
