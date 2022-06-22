@@ -53,11 +53,12 @@ length <- pruneddata %>%
   dplyr::summarize(mean.Length = mean(TOF), .groups = "drop") %>%
   ggplot(., aes(x = timepoint, y = mean.Length, fill = strain)) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
-  geom_jitter(aes(color = "strain"), size=0.1, width=0.2, alpha=0.1) +
-  theme_cowplot(font_size = 10, rel_small = 8/10) +
+  geom_jitter(aes(color = strain), size=0.3, width=0.2, alpha=0.3, shape = "bullet") +
+  theme_cowplot(font_size = 14, rel_small = 12/14) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
   labs(x="Time (hours)", y = expression(paste("Mean Animal Length (", mu,"m)"))) +
+  guides(color = F, fill = F) +
   scale_x_discrete(breaks = c("05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
 
 width <- pruneddata %>%
@@ -66,11 +67,12 @@ width <- pruneddata %>%
   ggplot(.) +
   aes(x = timepoint, y = mean.Width, fill = strain) +
   geom_boxplot(outlier.alpha = 0, alpha = 0.7) +
-  geom_jitter(aes(color = "strain"), size=0.1, width=0.2, alpha=0.1) +
-  theme_cowplot(font_size = 10, rel_small = 8/10) +
+  geom_jitter(aes(color = strain), size=0.3, width=0.2, alpha=0.3, shape = "bullet") +
+  theme_cowplot(font_size = 14, rel_small = 12/14) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
   labs(x="Time (hours)", y = expression(paste("Mean Animal Width (", mu,"m)"))) +
+  guides(color = F, fill = F) +
   scale_x_discrete(breaks = c("05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
 
 fig1 <- cowplot::plot_grid(length, width, labels = "AUTO", ncol = 1, nrow = 2, align = "hv", label_size = 10)
