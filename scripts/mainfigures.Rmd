@@ -57,7 +57,7 @@ length <- pruneddata %>%
   theme_cowplot(font_size = 10, rel_small = 8/10) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
-  labs(x="Time (hours)", y = "Mean Animal Length") +
+  labs(x="Time (hours)", y = expression(paste("Mean Animal Length (", mu,"m)"))) +
   scale_x_discrete(breaks = c("05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
 
 width <- pruneddata %>%
@@ -70,14 +70,14 @@ width <- pruneddata %>%
   theme_cowplot(font_size = 10, rel_small = 8/10) +
   scale_fill_manual(values = c("#ffa500","#0000ff")) +
   scale_color_manual(values = c("#ffa500","#0000ff")) +
-  labs(x="Time (hours)", y = "Mean Animal Width") +
+  labs(x="Time (hours)", y = expression(paste("Mean Animal Width (", mu,"m)"))) +
   scale_x_discrete(breaks = c("05", 10, 15, 20, 25, 30, 35, 40, 45, 50))
 
 fig1 <- cowplot::plot_grid(length, width, labels = "AUTO", ncol = 1, nrow = 2, align = "hv", label_size = 10)
 fig1
 ```
 ```{r eval=FALSE, include=FALSE}
-ggsave(here::here("figures", "Fig1.png"), plot = fig1, device = "png", width = 6, height = 5.5, units = "in", dpi = 300)
+ggsave(here::here("figures", "Fig1.png"), plot = fig1, device = "png", width = 6, height = 5.5, units = "in", dpi = 300, bg="white")
 ```
 
 
@@ -91,7 +91,7 @@ hist.TOF <- na.omit(phenocross$pheno) %>%
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black")
 lod.TOF <- linkagemapping::maxlodplot(traitmap, tsize = 12) + labs(title = "") +
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border() + 
-  theme(axis.text.x = element_blank()) + geom_hline(yintercept = 3, alpha = 0.3) 
+  theme(axis.text.x = element_blank()) + geom_hline(yintercept = 3, alpha = 0.5, linetype="dotted") 
 pxg.TOF <- linkagemapping::pxgplot(phenocross, traitmap) + 
   theme(panel.grid = element_blank()) + labs(title = "") +
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black") +
@@ -105,7 +105,7 @@ hist.Width <- na.omit(phenocross$pheno) %>%
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black")
 lod.Width <- linkagemapping::maxlodplot(traitmap, tsize = 12) + labs(title = "") +
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border() + 
-  theme(axis.text.x = element_blank()) + geom_hline(yintercept = 3, alpha = 0.3)
+  theme(axis.text.x = element_blank()) + geom_hline(yintercept = 3, alpha = 0.5, linetype="dotted")
 pxg.Width <- linkagemapping::pxgplot(phenocross, traitmap) + 
   theme(panel.grid = element_blank()) + labs(title = "") +
   theme_cowplot(font_size = 12, rel_small = 10/12) + panel_border(color = "black") +
@@ -119,7 +119,7 @@ fig2 <- cowplot::plot_grid(p1,p2, nrow = 2)
 fig2
 ```
 ```{r eval=FALSE, include=FALSE}
-ggsave(here::here("figures", "Fig2.png"), plot = fig2, device = "png", width = 12, height = 6, units = "in", dpi = 300)
+ggsave(here::here("figures", "Fig2.png"), plot = fig2, device = "png", width = 12, height = 6, units = "in", dpi = 300, bg="white")
 ```
 
 #### **Table 1**
@@ -147,7 +147,7 @@ fig3 <- regress_stats(sumnils, nilgeno, "L4s")
 fig3[[3]]
 ```
 ```{r eval=FALSE, include=FALSE}
-ggsave(here::here("figures", "Fig3.png"), plot = fig3[[3]], device = "png", width = 12, height = 6, units = "in", dpi = 300)
+ggsave(here::here("figures", "Fig3.png"), plot = fig3[[3]], device = "png", width = 12, height = 6, units = "in", dpi = 300, bg="white")
 ```
 
 

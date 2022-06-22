@@ -41,7 +41,7 @@ regress_stats <- function(phenodf, genodf, stages) {
     scale_color_manual(values = c("N2" = "#ffa500", "CB4856" = "#0000ff")) + 
     guides(color = "none", size = "none", fill = "none") + ylab("Mean Animal Length") + xlab("") 
   
-  # plot chrV genotype
+  # plot chrIV genotype
   chrIV.genoplot <- genodf %>%
     dplyr::ungroup() %>%
     dplyr::filter(chrom == "IV",
@@ -53,6 +53,8 @@ regress_stats <- function(phenodf, genodf, stages) {
     ggplot(.)+
     geom_segment(aes(x = start/1e6, y = sample, xend = end/1e6, yend = sample, color = gt_name), size = 8) +
     facet_wrap(~chrom)+
+    geom_vline(xintercept = 9.392639) +
+    geom_vline(xintercept = c(6.211685,12.868784), linetype="dotted") +
     scale_color_manual(values=c("N2"="orange","CB4856"="blue"))+
     theme_cowplot() + panel_border(color = "black") +
     theme(axis.ticks.y = element_blank(),
@@ -134,6 +136,8 @@ regress_stats <- function(phenodf, genodf, stages) {
     ggplot(.)+
     geom_segment(aes(x = start/1e6, y = sample, xend = end/1e6, yend = sample, color = gt_name), size = 8) +
     facet_wrap(~chrom)+
+    geom_vline(xintercept = 11.806498) +
+    geom_vline(xintercept = c(5.371124,12.112105), linetype="dotted") +
     scale_color_manual(values=c("N2"="orange","CB4856"="blue"))+
     theme_cowplot() + panel_border(color = "black") +
     theme(axis.ticks.y = element_blank(),
@@ -213,8 +217,9 @@ regress_stats <- function(phenodf, genodf, stages) {
     ggplot(.)+
     geom_segment(aes(x = start/1e6, y = sample, xend = end/1e6, yend = sample, color = gt_name), size = 8) +
     facet_wrap(~chrom)+
-    scale_color_manual(values=c("N2"="orange","CB4856"="blue"))+
+    geom_vline(xintercept = 12.750794) +
     geom_vline(xintercept = c(12.565734,13.173080), linetype="dotted") +
+    scale_color_manual(values = c("N2" = "#ffa500", "CB4856" = "#0000ff")) + 
     theme_cowplot() + panel_border(color = "black") +
     theme(axis.ticks.y = element_blank(),
           legend.position = "none",
